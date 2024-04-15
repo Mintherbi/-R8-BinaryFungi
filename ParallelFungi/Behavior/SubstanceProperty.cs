@@ -23,6 +23,10 @@ namespace ParallelFungi.Behavior
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
+            pManager.AddPointParameter("Substance", "S", "Location of Substance", GH_ParamAccess.item);
+            pManager.AddNumberParameter("Force", "F", "Strength of Substance", GH_ParamAccess.item);
+            pManager.AddIntegerParameter("Treshold", "T", "Threshold of Distance", GH_ParamAccess.item);
+            pManager.AddBooleanParameter("Direction", "D", "True : Attact | False : Repel", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -30,6 +34,7 @@ namespace ParallelFungi.Behavior
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
+            pManager.AddGenericParameter("SubstanceProperty", "SB", "Property of substance", GH_ParamAccess.item);
         }
 
         /// <summary>
