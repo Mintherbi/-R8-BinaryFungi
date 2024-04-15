@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using ParallelFungi.Data;
 using Grasshopper.Kernel;
 using Rhino.Geometry;
 
@@ -33,7 +33,7 @@ namespace ParallelFungi.Behavior
         /// </summary>
         protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
-            pManager.AddGenericParameter("Growth_Behavior","GB",)
+            pManager.AddGenericParameter("Growth_Behavior", "GB", "Merged Data of Growth Behavior", GH_ParamAccess.item);
         }
 
         /// <summary>
@@ -42,6 +42,22 @@ namespace ParallelFungi.Behavior
         /// <param name="DA">The DA object is used to retrieve from inputs and store in outputs.</param>
         protected override void SolveInstance(IGH_DataAccess DA)
         {
+            #region ///Set Input Param
+
+            int Growth_Rate = new int();
+            double Branch_Rate = new double();
+            double Neighbor_Sensing_Rate = new double();
+
+            if(!DA.GetData(0, ref Growth_Rate)) { return; }
+            if(!DA.GetData(1, ref Branch_Rate)) { return; }
+            if (!DA.GetData(2, ref Neighbor_Sensing_Rate)) { return; }
+            #endregion
+
+            GrowthData Growth = new GrowthData(Growth_Rate, Branch_Rate, Neighbor_Sensing_Rate);
+
+
+            DA.SetData(0, Growth);
+
         }
 
         /// <summary>
