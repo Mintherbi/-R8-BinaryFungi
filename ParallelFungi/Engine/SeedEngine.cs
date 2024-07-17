@@ -1,10 +1,11 @@
 using Grasshopper;
 using Grasshopper.Kernel;
+using ParallelFungi.Data;
 using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 
-namespace BinaryNature
+namespace ParallelFungi.Engine
 {
     public class ParallelFungi : GH_Component
     {
@@ -16,7 +17,7 @@ namespace BinaryNature
         /// new tabs/panels will automatically be created.
         /// </summary>
         public ParallelFungi()
-          : base("ParallelFungi","ParallelFungi" ,
+          : base("ParallelFungi", "ParallelFungi",
             "CUDA Accelerated Fungus growth Simulation",
             "BinaryNature", "Fungus")
         {
@@ -25,24 +26,18 @@ namespace BinaryNature
         /// <summary>
         /// Registers all the input parameters for this component.
         /// </summary>
-        protected override void RegisterInputParams(GH_Component.GH_InputParamManager pManager)
+        protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
             pManager.AddPointParameter("start", "S", "Starting Point of Fungus", GH_ParamAccess.item, new Point3d(0, 0, 0));      //0
-            pManager.AddPointParameter("avoid_pt", "Av_p", "Avoiding Point List", GH_ParamAccess.list, null);        //1
-            pManager.AddPointParameter("attract_pt", "At_p", "Attacting Point List", GH_ParamAccess.list, null);         //2
-            pManager.AddNumberParameter("avoid_coef", "Ac_co", "Avoid Strength of Avoiding Point List", GH_ParamAccess.item, 10);       //3
-            pManager.AddNumberParameter("attract_coef", "At_co", "Attract Strength of Attracting Point List", GH_ParamAccess.item, 10);            //4
-            pManager.AddNumberParameter("neighbor_avoid_coef", "NAc_co", "Neighbor sensing avoid coef", GH_ParamAccess.item, 3);       //5
-            pManager.AddIntegerParameter("growth_rate", "Gr_r", "Growing Lenght per Time Delta", GH_ParamAccess.item, 1);           //6
-            pManager.AddNumberParameter("branch_rate", "Br_r", "Branch Possibility of Section", GH_ParamAccess.item, 0.1);          //7
-            pManager.AddNumberParameter("quad_decay threshold", "q_th", "quad decay threshold", GH_ParamAccess.item);          //8
+            pManager.AddGenericParameter("fungus property", "FP", "Property of Fungus", GH_ParamAccess.item);
+            pManager.AddGenericParameter("substance", "S", "List of substance", GH_ParamAccess.list);
             pManager.AddBooleanParameter("reset", "reset", "Reset to Initialize Parameter", GH_ParamAccess.item, false);            //9
         }
 
         /// <summary>
         /// Registers all the output parameters for this component.
         /// </summary>
-        protected override void RegisterOutputParams(GH_Component.GH_OutputParamManager pManager)
+        protected override void RegisterOutputParams(GH_OutputParamManager pManager)
         {
             pManager.AddPointParameter("Branch_pt", "B_pt", "End Point of Section", GH_ParamAccess.list);           //0
             pManager.AddPointParameter("subpoint", "sub_pt", "Subpoint of Section", GH_ParamAccess.list);           //1
@@ -144,7 +139,7 @@ namespace BinaryNature
                 branch_pt.Add(fungus[j].end);
                 if (fungus[j].subseq.Count != 0)
                 {
-                    List<Point3d> sec = new List<Point3d> ();
+                    List<Point3d> sec = new List<Point3d>();
                     sec.Add(fungus[j].start);
                     sec.AddRange(fungus[j].subseq);
                     sec.Add(fungus[j].end);
@@ -170,7 +165,7 @@ namespace BinaryNature
         /// You can add image files to your project resources and access them like this:
         /// return Resources.IconForThisComponent;
         /// </summary>
-       /// protected override System.Drawing.Bitmap Icon => null;
+        /// protected override System.Drawing.Bitmap Icon => null;
 
         /// <summary>
         /// Each component must have a unique Guid to identify it. 

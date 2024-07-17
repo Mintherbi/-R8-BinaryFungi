@@ -1,14 +1,12 @@
-﻿﻿using Rhino.Geometry;
+﻿using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using ParallelFungi.Data;
 
-
-namespace BinaryNature
+namespace ParallelFungi.Data
 {
     class Section
     {
@@ -25,8 +23,8 @@ namespace BinaryNature
         public Section(Point3d start, int Section_hash)
         {
             this.start = new Point3d(start);
-            this.path = new Vector3d(0, 0, 1) + Rand_vec();
-            this.end = new Point3d(start + this.path);
+            path = new Vector3d(0, 0, 1) + Rand_vec();
+            end = new Point3d(start + path);
             this.Section_hash = Section_hash;
         }
 
@@ -34,14 +32,14 @@ namespace BinaryNature
         //method
         public void grow(double growth_rate)
         {
-            if (this.fin == true)
+            if (fin == true)
             {
-                Console.WriteLine("Branch {0} is adult. Nowhere to Grow", this.Section_hash);
+                Console.WriteLine("Branch {0} is adult. Nowhere to Grow", Section_hash);
             }
-            else if (this.fin == false)
+            else if (fin == false)
             {
-                this.subseq.Add(this.end);
-                this.end = this.subseq[this.subseq.Count - 1] + (growth_rate * Unitize(path)) + Rand_vec();
+                subseq.Add(end);
+                end = subseq[subseq.Count - 1] + growth_rate * Unitize(path) + Rand_vec();
                 /*
                 this.subseq.Add(this.subseq[this.subseq.Count - 1] + (growth_rate * Unitize(path)) + Rand_vec());
                 this.end = this.subseq[this.subseq.Count - 1];
@@ -52,12 +50,12 @@ namespace BinaryNature
         public void graft(Section branch_new)
         {
             //if Section is not fully grown, set the section fully grown
-            if (this.fin == false)
+            if (fin == false)
             {
-                this.fin = true;
+                fin = true;
             }
             branch_new.path += Rand_vec();     //나중에 지우기 꼭 나중에 수정할 것
-            this.branch.Add(branch_new.Section_hash);
+            branch.Add(branch_new.Section_hash);
         }
 
 
@@ -69,11 +67,11 @@ namespace BinaryNature
 
                 for (int i = 0; i < avoid.Count; i++)
                 {
-                    avoid_grad += Unitize(Vector3d.Subtract(new Vector3d(avoid[i]), new Vector3d(this.end))) * quad_decay(this.end, avoid[i], q_th, av_co);
+                    avoid_grad += Unitize(Vector3d.Subtract(new Vector3d(avoid[i]), new Vector3d(end))) * quad_decay(end, avoid[i], q_th, av_co);
                     //avoid_grad += Unitize(Vector3d.Subtract(new Vector3d(avoid[i]), new Vector3d(this.end))) * sqrt_decay(this.end, avoid[i], s_th) * i_factor;
                 }
 
-                this.path = this.path.Length * Unitize(this.path + Unitize(avoid_grad));
+                path = path.Length * Unitize(path + Unitize(avoid_grad));
             }
         }
 
@@ -83,11 +81,11 @@ namespace BinaryNature
 
             for (int i = 0; i < attract.Count; i++)
             {
-                attract_grad += Unitize(Vector3d.Subtract(new Vector3d(attract[i]), new Vector3d(this.end))) * quad_decay(this.end, attract[i], q_th, at_co);
+                attract_grad += Unitize(Vector3d.Subtract(new Vector3d(attract[i]), new Vector3d(end))) * quad_decay(end, attract[i], q_th, at_co);
                 //attract_grad += Unitize(Vector3d.Subtract(new Vector3d(attract[i]), new Vector3d(this.end))) * sqrt_decay(this.end, attract[i], s_th) * i_factor;
             }
 
-            this.path = this.path.Length * Unitize(this.path + Unitize(attract_grad));
+            path = path.Length * Unitize(path + Unitize(attract_grad));
         }
 
 
@@ -115,7 +113,7 @@ namespace BinaryNature
         private double quad_decay(Point3d pt1, Point3d pt2, double q_th, double coef)
         {
             double dis = pt1.DistanceTo(pt2);
-            if(dis <= q_th) { dis = (double) q_th; }
+            if (dis <= q_th) { dis = (double)q_th; }
             return coef / (dis * dis);
         }
 

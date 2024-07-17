@@ -26,6 +26,7 @@ namespace ParallelFungi.Behavior
             pManager.AddIntegerParameter("Growth_Rate", "GR", "Growing Length per time", GH_ParamAccess.item, 1);
             pManager.AddNumberParameter("Branch_Rate", "BR", "Growing Length per time", GH_ParamAccess.item,0.1);
             pManager.AddNumberParameter("Neighbor_Sensing_Rate", "NR", "Growing Length per time", GH_ParamAccess.item,3);
+            pManager.AddNumberParameter("Quad Decay Threshold", "QD", "Threshold of compeling between tips", GH_ParamAccess.item,5);
         }
 
         /// <summary>
@@ -46,18 +47,18 @@ namespace ParallelFungi.Behavior
 
             int Growth_Rate = new int();
             double Branch_Rate = new double();
-            double Neighbor_Sensing_Rate = new double();
+            double neighbor_sensing_sensitivity = new double();
+            double quad_decay_threshold = new double();
 
-            if(!DA.GetData(0, ref Growth_Rate)) { return; }
-            if(!DA.GetData(1, ref Branch_Rate)) { return; }
-            if (!DA.GetData(2, ref Neighbor_Sensing_Rate)) { return; }
+            if (!DA.GetData(0, ref Growth_Rate)) { return; }
+            if (!DA.GetData(1, ref Branch_Rate)) { return; }
+            if (!DA.GetData(2, ref neighbor_sensing_sensitivity)) { return; }
+            if(!DA.GetData(3, ref quad_decay_threshold)) { return; }    
             #endregion
 
-            GrowthData Growth = new GrowthData(Growth_Rate, Branch_Rate, Neighbor_Sensing_Rate);
-
+            GrowthData Growth = new GrowthData(Growth_Rate, Branch_Rate, neighbor_sensing_sensitivity, quad_decay_threshold);
 
             DA.SetData(0, Growth);
-
         }
 
         /// <summary>

@@ -8,15 +8,16 @@ namespace ParallelFungi.Data
 {
     public struct GrowthData
     {
-        public int r_growth { get; set; }
-        public double r_branch { get; set; }
-        public double coef_neighbor_sensing { get; set; }
-
-        public GrowthData(int r_growth = 1, double r_branch = 0.1, double coef_neighbor_sensing = 3)
+        public int growth_rate { get; set; }
+        public double branch_probability { get; set; }
+        public double neighbor_sensing_sensitivity { get; set; }
+        public double quad_decay_threshold { get; set; }
+        public GrowthData(int growth_rate = 1, double branch_probability = 0.1, double neighbor_sensing_sensitivity = 3, double quad_decay_threshold = 5)
         {
-            this.r_growth = r_growth;
-            this.r_branch = r_branch;
-            this.coef_neighbor_sensing = coef_neighbor_sensing;
+            this.growth_rate = growth_rate;
+            this.branch_probability = branch_probability;
+            this.neighbor_sensing_sensitivity = neighbor_sensing_sensitivity;
+            this.quad_decay_threshold = quad_decay_threshold;
         }
     }
 }
