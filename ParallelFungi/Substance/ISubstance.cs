@@ -5,11 +5,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParallelFungi.Data
+using Rhino;
+
+namespace ParallelFungi.Substance
 {
-    internal interface ISubstance
+    public interface ISubstance
     {
-        Point3d Substance { get; set; }
+        IGeometry Substance { get; set; }
         double Force { get; set; }
         int Threshold { get; set; }
     }

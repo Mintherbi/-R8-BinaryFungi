@@ -5,6 +5,10 @@ using Rhino.Geometry;
 using System;
 using System.Collections.Generic;
 
+using ParallelFungi.Behavior;
+using ParallelFungi.Data;
+using ParallelFungi.Substance;
+
 namespace ParallelFungi.Engine
 {
     public class ParallelFungi : GH_Component
@@ -19,7 +23,7 @@ namespace ParallelFungi.Engine
         public ParallelFungi()
           : base("ParallelFungi", "ParallelFungi",
             "CUDA Accelerated Fungus growth Simulation",
-            "BinaryNature", "Fungus")
+            "BinaryNature", "BinaryFungi")
         {
         }
 
@@ -60,26 +64,14 @@ namespace ParallelFungi.Engine
             #region ///Set Input Parameter 
 
             Point3d start = new Point3d();
-            List<Point3d> avoid_pt = new List<Point3d>();
-            List<Point3d> attract_pt = new List<Point3d>();
-            double avoid_coef = new double();
-            double attract_coef = new double();
-            double Neighbor_attract_coef = new double();
-            int growth_rate = new int();
-            double branch_rate = new double();
-            double q_th = new double();
+            GrowthData GrowthData = new GrowthData();
+            List<ISubstance> Substance = new List<ISubstance>();
             bool reset = new bool();
 
             if (!DA.GetData(0, ref start)) { return; }
-            if (!DA.GetDataList(1, avoid_pt)) { return; }
-            if (!DA.GetDataList(2, attract_pt)) { return; }
-            if (!DA.GetData(3, ref avoid_coef)) { return; }
-            if (!DA.GetData(4, ref attract_coef)) { return; }
-            if (!DA.GetData(5, ref attract_coef)) { return; }
-            if (!DA.GetData(6, ref growth_rate)) { return; }
-            if (!DA.GetData(7, ref branch_rate)) { return; }
-            if (!DA.GetData(8, ref q_th)) { return; }
-            if (!DA.GetData(9, ref reset)) { return; }
+            if (!DA.GetData(1, ref GrowthData)) { return; }
+            if (!DA.GetDataList(2, Substance)) {  return; }
+            if (!DA.GetData(3, ref reset)) { return; }
             #endregion
 
             Random branch_rand = new Random();
@@ -102,7 +94,7 @@ namespace ParallelFungi.Engine
             {
                 if (fungus[i].fin == false)
                 {
-                    if (branch_rand.NextDouble() < branch_rate)
+                    if (branch_rand.NextDouble() < GrowthData.branch_probability)
                     {
                         Section branch1 = new Section(fungus[i].end, Section_num);
                         Section branch2 = new Section(fungus[i].end, Section_num + 1);
@@ -122,7 +114,7 @@ namespace ParallelFungi.Engine
                     {
                         if (avoid_pt.Count != 0)
                         {
-                            fungus[i].avoid_path_update(avoid_pt, avoid_coef, q_th);
+                            fungus[i].avoid_path_update(avoid_pt, GrowthData.neighbor_sensing_sensitivity, GrowthData.quad_decay_threshold);
                         }
                         if (attract_pt.Count != 0)
                         {

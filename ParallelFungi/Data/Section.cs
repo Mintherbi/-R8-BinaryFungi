@@ -18,6 +18,7 @@ namespace ParallelFungi.Data
         public List<int> branch = new List<int>();     //branch of section : null=growing, else=end
         public bool fin = false;     // 0:growing 1:end of growth
         public int Section_hash;      // Section code
+        public int thickness;
 
         //construct
         public Section(Point3d start, int Section_hash)

@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Rhino.Geometry;
 
-namespace ParallelFungi.Data
+namespace ParallelFungi.Substance
 {
     public struct AttractData : ISubstance
     {
@@ -14,12 +14,12 @@ namespace ParallelFungi.Data
         public int Threshold { get; set; }
         private double max_force;
 
-        public AttractData(Point3d substance, double force = 10, int threshold=10, bool direction=true)
+        public AttractData(Point3d substance, double force = 10, int threshold = 10, bool direction = true)
         {
-            this.Substance = substance;
-            this.Force = force;
-            this.Threshold = threshold;
-            this.max_force = force / (threshold * threshold);
+            Substance = substance;
+            Force = force;
+            Threshold = threshold;
+            max_force = force / (threshold * threshold);
         }
     }
 }

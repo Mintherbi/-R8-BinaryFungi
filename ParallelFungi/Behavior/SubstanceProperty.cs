@@ -12,9 +12,9 @@ namespace ParallelFungi.Behavior
         /// Initializes a new instance of the MyComponent1 class.
         /// </summary>
         public SubstanceProperty()
-          : base("MyComponent1", "Nickname",
-              "Description",
-              "Category", "Subcategory")
+          : base("Substance", "S",
+              "Substance that can change environment",
+              "BinaryNature", "BinaryFungi")
         {
         }
 

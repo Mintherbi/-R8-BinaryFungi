@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParallelFungi.Data
+namespace ParallelFungi.Substance
 {
     public struct RepelData : ISubstance
     {
@@ -16,10 +16,10 @@ namespace ParallelFungi.Data
 
         public RepelData(Point3d substance, double force = 10, int threshold = 10, bool direction = true)
         {
-            this.Substance = substance;
-            this.Force = force *(-1);
-            this.Threshold = threshold;
-            this.min_force = force / (threshold * threshold);
+            Substance = substance;
+            Force = force * -1;
+            Threshold = threshold;
+            min_force = force / (threshold * threshold);
         }
     }
 }
