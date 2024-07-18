@@ -8,10 +8,4 @@ The Neighbour-Sensing model is a mathematical model that simulates the growth of
 <div align="center">
    <img src="IMG/NeighborSensing.png" alt="Main Description for Neighbor Sensing Model" width="90%"/>
 </div>
-
-## 2. Application Method
-
-## 3. Tutorial 
-
-## 4. Program Structure
    
