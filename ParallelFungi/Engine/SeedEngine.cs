@@ -79,7 +79,7 @@ namespace ParallelFungi.Engine
             if (reset == false)
             {
                 fungus = new List<Section>();
-                Section first = new Section(start, 0);      // starting point, hash of first fungi = 0
+                Section first = new Section(start, GrowthData, 0);      // starting point, hash of first fungi = 0
                 fungus.Add(first);
                 delta = 0;
                 Section_num = 1;
@@ -96,8 +96,8 @@ namespace ParallelFungi.Engine
                 {
                     if (branch_rand.NextDouble() < GrowthData.branch_probability)
                     {
-                        Section branch1 = new Section(fungus[i].end, Section_num);
-                        Section branch2 = new Section(fungus[i].end, Section_num + 1);
+                        Section branch1 = new Section(fungus[i].end, GrowthData, Section_num);
+                        Section branch2 = new Section(fungus[i].end, GrowthData, Section_num + 1);
 
                         fungus[i].graft(branch1);
                         fungus[i].graft(branch2);
@@ -112,16 +112,17 @@ namespace ParallelFungi.Engine
 
                     else
                     {
-                        if (attract_pt.Count != 0)
+                        if (Substance.Count != 0)
                         {
-                            fungus[i].point_substance_update(attract_pt, attract_coef, q_th);
+                            fungus[i].substance_update(Substance);
                         }
                     }
-                    fungus[i].avoid_path_update(subpoint, Neighbor_attract_coef, q_th);
-                    fungus[i].grow(growth_rate);
+                    fungus[i].NeighborSensing(subpoint);
+                    fungus[i].grow();
                 }
             }
 
+            #region /// Set Output Parameter
             for (int j = 0; j < fungus.Count; j++)
             {
                 branch_pt.Add(fungus[j].end);
@@ -145,6 +146,8 @@ namespace ParallelFungi.Engine
             DA.SetDataList(1, subpoint);
             DA.SetDataTree(2, section_crv);
             DA.SetData(3, delta);
+
+            #endregion
         }
 
         /// <summary>

@@ -12,28 +12,35 @@ namespace ParallelFungi.Data
 {
     class Section
     {
-        //Properties
+        //Properties : Geometry
         public Point3d start;      //starting point of section
         public Point3d end;      //end point of section : null=growing, else=end of growth
         public List<Point3d> subseq = new List<Point3d>();      //sequence of growth by time t
         public Vector3d path;     //growing vetor
         public List<int> branch = new List<int>();     //branch of section : null=growing, else=end
         public bool fin = false;     // 0:growing 1:end of growth
+
+        //Properties : Growth Property
+        public GrowthData GrowthData;
+
         public int Section_hash;      // Section code
         public int thickness;
 
         //construct
-        public Section(Point3d start, int Section_hash)
+        public Section(Point3d start, GrowthData GrowthData, int Section_hash)
         {
             this.start = new Point3d(start);
             path = new Vector3d(0, 0, 1) + Rand_vec();
             end = new Point3d(start + path);
+
+            this.GrowthData = GrowthData;
+
             this.Section_hash = Section_hash;
         }
 
 
         //method
-        public void grow(double growth_rate)
+        public void grow()
         {
             if (fin == true)
             {
@@ -42,7 +49,7 @@ namespace ParallelFungi.Data
             else if (fin == false)
             {
                 subseq.Add(end);
-                end = subseq[subseq.Count - 1] + growth_rate * Unitize(path) + Rand_vec();
+                end = subseq[subseq.Count - 1] + this.GrowthData.growth_rate * Unitize(path) + Rand_vec();
                 /*
                 this.subseq.Add(this.subseq[this.subseq.Count - 1] + (growth_rate * Unitize(path)) + Rand_vec());
                 this.end = this.subseq[this.subseq.Count - 1];
@@ -69,18 +76,9 @@ namespace ParallelFungi.Data
             {
                 Point3d attract_point = new Point3d();
 
-                if (substance is AttractPoint attractPoint)
-                {
-                    attract_point = (Point3d)attractPoint.Substance;
-                }
-                else if (substance is AttractCurve attractCurve)
-                {
-                    attract_point = ((Curve)attractCurve.Substance).ClosestPoint(this.end);
-                }
-                else if (substance is AttractMesh attractMesh)
-                {
-                    attract_point = attractMesh.Mesh.ClosestPoint(end);
-                }
+                if (substance is AttractPoint attractPoint) { attract_point = (Point3d)attractPoint.Substance; }
+                else if (substance is AttractCurve attractCurve) { ((Curve) attractCurve.Substance).ClosestPoint(end); }
+                else if (substance is AttractMesh attractMesh) { ((Mesh) attractMesh.Substance).ClosestPoint(end); }
 
                 double distance = end.DistanceTo(attract_point);
 
@@ -105,6 +103,10 @@ namespace ParallelFungi.Data
             path = path.Length * Unitize(path + Unitize(attract_grad));
         }
 
+        public void NeighborSensing(List<Point3d> subpoint)
+        {
+
+        }
 
 
         //misc
