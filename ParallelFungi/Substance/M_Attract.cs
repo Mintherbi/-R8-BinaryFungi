@@ -9,7 +9,7 @@ namespace ParallelFungi.Substance
 {
     public struct AttractMesh : ISubstance
     {
-        public Mesh Substance { get; set; }
+        public Object Substance { get; set; }
         public double Force { get; set; }
         public int Threshold { get; set; }
         private double max_force;

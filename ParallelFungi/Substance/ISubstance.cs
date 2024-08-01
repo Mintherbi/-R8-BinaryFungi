@@ -11,7 +11,7 @@ namespace ParallelFungi.Substance
 {
     public interface ISubstance
     {
-        IGeometry Substance { get; set; }
+        Object Substance {  get; set; }
         double Force { get; set; }
         int Threshold { get; set; }
     }

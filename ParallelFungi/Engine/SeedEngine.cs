@@ -112,13 +112,9 @@ namespace ParallelFungi.Engine
 
                     else
                     {
-                        if (avoid_pt.Count != 0)
-                        {
-                            fungus[i].avoid_path_update(avoid_pt, GrowthData.neighbor_sensing_sensitivity, GrowthData.quad_decay_threshold);
-                        }
                         if (attract_pt.Count != 0)
                         {
-                            fungus[i].attract_path_update(attract_pt, attract_coef, q_th);
+                            fungus[i].point_substance_update(attract_pt, attract_coef, q_th);
                         }
                     }
                     fungus[i].avoid_path_update(subpoint, Neighbor_attract_coef, q_th);

@@ -59,24 +59,7 @@ namespace ParallelFungi.Data
             branch.Add(branch_new.Section_hash);
         }
 
-
-        public void avoid_path_update(List<Point3d> avoid, double av_co, double q_th)
-        {
-            if (avoid.Count != 0)
-            {
-                Vector3d avoid_grad = new Vector3d(0, 0, 0);
-
-                for (int i = 0; i < avoid.Count; i++)
-                {
-                    avoid_grad += Unitize(Vector3d.Subtract(new Vector3d(avoid[i]), new Vector3d(end))) * quad_decay(end, avoid[i], q_th, av_co);
-                    //avoid_grad += Unitize(Vector3d.Subtract(new Vector3d(avoid[i]), new Vector3d(this.end))) * sqrt_decay(this.end, avoid[i], s_th) * i_factor;
-                }
-
-                path = path.Length * Unitize(path + Unitize(avoid_grad));
-            }
-        }
-
-        public void attract_path_update(List<Point3d> attract, double at_co, double q_th)
+        public void point_substance_update(List<Point3d> attract, double at_co, double q_th)
         {
             Vector3d attract_grad = new Vector3d(0, 0, 0);
 
