@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using ParallelFungi.Substance;
+
 
 namespace ParallelFungi.Data
 {
@@ -59,14 +61,45 @@ namespace ParallelFungi.Data
             branch.Add(branch_new.Section_hash);
         }
 
-        public void point_substance_update(List<Point3d> attract, double at_co, double q_th)
+        public void substance_update(List<ISubstance> Substances)
         {
             Vector3d attract_grad = new Vector3d(0, 0, 0);
 
-            for (int i = 0; i < attract.Count; i++)
+            foreach (var substance in Substances)
             {
-                attract_grad += Unitize(Vector3d.Subtract(new Vector3d(attract[i]), new Vector3d(end))) * quad_decay(end, attract[i], q_th, at_co);
-                //attract_grad += Unitize(Vector3d.Subtract(new Vector3d(attract[i]), new Vector3d(this.end))) * sqrt_decay(this.end, attract[i], s_th) * i_factor;
+                Point3d attract_point = new Point3d();
+
+                if (substance is AttractPoint attractPoint)
+                {
+                    attract_point = (Point3d)attractPoint.Substance;
+                }
+                else if (substance is AttractCurve attractCurve)
+                {
+                    attract_point = ((Curve)attractCurve.Substance).ClosestPoint(this.end);
+                }
+                else if (substance is AttractMesh attractMesh)
+                {
+                    attract_point = attractMesh.Mesh.ClosestPoint(end);
+                }
+
+                double distance = end.DistanceTo(attract_point);
+
+                if (distance <= q_th)
+                {
+                    Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
+                    direction.Unitize();
+
+                    double force = at_co * quad_decay(end, attract_point, q_th, at_co); // 여기에 적절한 force 계산식을 사용하세요
+                    attract_grad += direction * force;
+                }
+                else
+                {
+                    Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
+                    direction.Unitize();
+
+                    double force = Math.Min(at_co, at_co * quad_decay(end, attract_point, q_th, at_co)); // 최대 force 값을 설정
+                    attract_grad += direction * force;
+                }
             }
 
             path = path.Length * Unitize(path + Unitize(attract_grad));
@@ -100,14 +133,5 @@ namespace ParallelFungi.Data
             if (dis <= q_th) { dis = (double)q_th; }
             return coef / (dis * dis);
         }
-
-        /*
-        private double sqrt_decay(Point3d pt1,  Point3d pt2, int s_th) 
-        {
-            double dis = pt1.DistanceTo(pt2);
-            if (dis <= s_th) { dis = (double) s_th; }
-            return 1/Math.Sqrt(dis);
-        }
-        */
     }
 }

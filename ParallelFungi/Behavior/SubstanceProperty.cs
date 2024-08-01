@@ -57,22 +57,24 @@ namespace ParallelFungi.Behavior
             if (!DA.GetData(2, ref threshold)) { return; }
             if (!DA.GetData(3, ref direction)) { return; }
 
+            #endregion
+
+            ISubstance tempSub = null;
+
             if (Substance is Point3d)
             {
-                DA.SetData(0, AttractPoint(Substance, ))
+                tempSub = new AttractPoint((Point3d)Substance, force, threshold, direction);
             }
             else if (Substance is Curve)
             {
-                // x가 Curve 타입이면 이 블록이 실행됩니다.
+                tempSub = new AttractCurve((Curve)Substance, force, threshold, direction);
             }
             else if (Substance is Mesh)
             {
-                // x가 Mesh 타입이면 이 블록이 실행됩니다.
+                tempSub = new AttractMesh((Mesh)Substance, force, threshold, direction);
             }
-            else
-            {
-                // x가 Point3d, Curve, Mesh 어느 것도 아니면 이 블록이 실행됩니다.
-            }
+
+            DA.SetData(0, tempSub);
         }
 
         /// <summary>
