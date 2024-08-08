@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 using ParallelFungi.Substance;
+using Rhino.Render.CustomRenderMeshes;
 
 
 namespace ParallelFungi.Data
@@ -50,10 +51,6 @@ namespace ParallelFungi.Data
             {
                 subseq.Add(end);
                 end = subseq[subseq.Count - 1] + this.GrowthData.growth_rate * Unitize(path) + Rand_vec();
-                /*
-                this.subseq.Add(this.subseq[this.subseq.Count - 1] + (growth_rate * Unitize(path)) + Rand_vec());
-                this.end = this.subseq[this.subseq.Count - 1];
-                */
             }
         }
 
@@ -76,28 +73,24 @@ namespace ParallelFungi.Data
             {
                 Point3d attract_point = new Point3d();
 
-                if (substance is AttractPoint attractPoint) { attract_point = (Point3d)attractPoint.Substance; }
-                else if (substance is AttractCurve attractCurve) { ((Curve) attractCurve.Substance).ClosestPoint(end); }
-                else if (substance is AttractMesh attractMesh) { ((Mesh) attractMesh.Substance).ClosestPoint(end); }
+                if (substance is AttractPoint attractPoint) 
+                { 
+                    attract_point = (Point3d)attractPoint.Substance;
+                }
+                else if (substance is AttractCurve attractCurve) 
+                {
+                    double t = new double();
+                    ((Curve) attractCurve.Substance).ClosestPoint(end, out t);
+                    attract_point = ((Curve)attractCurve.Substance).PointAt(t);
+                }
+                else if (substance is AttractMesh attractMesh) 
+                { 
+                    ((Mesh) attractMesh.Substance).ClosestPoint(end, out attract_point, 0.0); 
+                }
 
                 double distance = end.DistanceTo(attract_point);
 
-                if (distance <= q_th)
-                {
-                    Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
-                    direction.Unitize();
-
-                    double force = at_co * quad_decay(end, attract_point, q_th, at_co); // 여기에 적절한 force 계산식을 사용하세요
-                    attract_grad += direction * force;
-                }
-                else
-                {
-                    Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
-                    direction.Unitize();
-
-                    double force = Math.Min(at_co, at_co * quad_decay(end, attract_point, q_th, at_co)); // 최대 force 값을 설정
-                    attract_grad += direction * force;
-                }
+                attract_grad += attract_point - this.end;
             }
 
             path = path.Length * Unitize(path + Unitize(attract_grad));
@@ -105,6 +98,22 @@ namespace ParallelFungi.Data
 
         public void NeighborSensing(List<Point3d> subpoint)
         {
+            if (distance <= q_th)
+            {
+                Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
+                direction.Unitize();
+
+                double force = at_co * quad_decay(end, attract_point, q_th, at_co); // 여기에 적절한 force 계산식을 사용하세요
+                attract_grad += direction * force;
+            }
+            else
+            {
+                Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
+                direction.Unitize();
+
+                double force = Math.Min(at_co, at_co * quad_decay(end, attract_point, q_th, at_co)); // 최대 force 값을 설정
+                attract_grad += direction * force;
+            }
 
         }
 
@@ -129,11 +138,11 @@ namespace ParallelFungi.Data
             return Unitize(rand_vec);
         }
 
-        private double quad_decay(Point3d pt1, Point3d pt2, double q_th, double coef)
+        private double quad_decay(Point3d pt1, Point3d pt2)
         {
             double dis = pt1.DistanceTo(pt2);
-            if (dis <= q_th) { dis = (double)q_th; }
-            return coef / (dis * dis);
+            if (dis <= this.GrowthData.quad_decay_threshold) { dis = this.GrowthData.quad_decay_threshold; }
+            return this.GrowthData.neighbor_sensing_sensitivity / (dis * dis);
         }
     }
 }
