@@ -32,7 +32,7 @@ namespace ParallelFungi.Engine
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddPointParameter("start", "S", "Starting Point of Fungus", GH_ParamAccess.item, new Point3d(0, 0, 0));      //0
+            pManager.AddPointParameter("start", "S", "Starting Point of Fungus", GH_ParamAccess.list);      //0
             pManager.AddGenericParameter("fungus property", "FP", "Property of Fungus", GH_ParamAccess.item);
             pManager.AddGenericParameter("substance", "S", "List of substance", GH_ParamAccess.list);
             pManager.AddBooleanParameter("reset", "reset", "Reset to Initialize Parameter", GH_ParamAccess.item, false);            //9
@@ -50,8 +50,12 @@ namespace ParallelFungi.Engine
         }
 
         List<Section> fungus;
+        RTree subSequence;
+        List<Point3d> subSequenceList;
+
+        int sequenceID;
         int delta;
-        int Section_num;
+        int section_num;
         int branch_num;
 
         /// <summary>
@@ -63,12 +67,12 @@ namespace ParallelFungi.Engine
         {
             #region ///Set Input Parameter 
 
-            Point3d start = new Point3d();
+            List<Point3d> Start = new List<Point3d>();
             GrowthData GrowthData = new GrowthData();
             List<ISubstance> Substance = new List<ISubstance>();
             bool reset = new bool();
 
-            if (!DA.GetData(0, ref start)) { return; }
+            if (!DA.GetDataList(0, Start)) { return; }
             if (!DA.GetData(1, ref GrowthData)) { return; }
             if (!DA.GetDataList(2, Substance)) {  return; }
             if (!DA.GetData(3, ref reset)) { return; }
@@ -78,12 +82,26 @@ namespace ParallelFungi.Engine
 
             if (reset == false)
             {
-                fungus = new List<Section>();
-                Section first = new Section(start, GrowthData, 0);      // starting point, hash of first fungi = 0
-                fungus.Add(first);
+                section_num = 0;
                 delta = 0;
-                Section_num = 1;
                 branch_num = 0;
+                sequenceID = 0;
+
+                fungus = new List<Section>();
+                subSequence = new RTree();
+                subSequenceList = new List<Point3d>();
+
+                foreach (var start in Start)
+                {
+                    Section first = new Section(start, GrowthData, section_num);      // starting point, hash of first fungi = 0
+                    fungus.Add(first);
+                    subSequence.Insert(start, sequenceID);
+                    subSequenceList.Add(start);
+
+                    section_num++;
+                    branch_num++;
+                    sequenceID++;
+                }
             }
 
             List<Point3d> subpoint = new List<Point3d>();
@@ -91,18 +109,18 @@ namespace ParallelFungi.Engine
             DataTree<Point3d> section_crv = new DataTree<Point3d>();
 
             for (int i = 0; i < fungus.Count; i++)
-            {
+            {   ///Traverse
                 if (fungus[i].fin == false)
-                {
+                {   ///Case of Branching
                     if (branch_rand.NextDouble() < GrowthData.branch_probability)
                     {
-                        Section branch1 = new Section(fungus[i].end, GrowthData, Section_num);
-                        Section branch2 = new Section(fungus[i].end, GrowthData, Section_num + 1);
+                        Section branch1 = new Section(fungus[i].end, GrowthData, section_num);
+                        Section branch2 = new Section(fungus[i].end, GrowthData, section_num + 1);
 
-                        fungus[i].graft(branch1);
-                        fungus[i].graft(branch2);
+                        fungus[i].Graft(branch1);
+                        fungus[i].Graft(branch2);
 
-                        Section_num += 2;
+                        section_num += 2;
 
                         fungus.Add(branch1);
                         fungus.Add(branch2);
@@ -117,8 +135,11 @@ namespace ParallelFungi.Engine
                             fungus[i].substance_update(Substance);
                         }
                     }
-                    fungus[i].NeighborSensing(subpoint);
-                    fungus[i].grow();
+
+                    fungus[i].NeighborSensing(subSequence, subSequenceList);
+                    subSequence.Insert(fungus[i].Grow(), sequenceID);
+                    sequenceID++;
+                    subSequenceList.Add(fungus[i].Grow());
                 }
             }
 
@@ -134,6 +155,7 @@ namespace ParallelFungi.Engine
                     sec.Add(fungus[j].end);
                     section_crv.AddRange(sec, new Grasshopper.Kernel.Data.GH_Path(j));
                 }
+
                 for (int k = 0; k < fungus[j].subseq.Count; k++)
                 {
                     subpoint.Add(fungus[j].subseq[k]);

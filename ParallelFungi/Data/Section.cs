@@ -28,6 +28,13 @@ namespace ParallelFungi.Data
         public int thickness;
 
         //construct
+
+        /// <summary>
+        /// Start of Section
+        /// </summary>
+        /// <param name="start"> 
+        /// <param name="GrowthData"></param>
+        /// <param name="Section_hash"></param>
         public Section(Point3d start, GrowthData GrowthData, int Section_hash)
         {
             this.start = new Point3d(start);
@@ -41,7 +48,11 @@ namespace ParallelFungi.Data
 
 
         //method
-        public void grow()
+        /// <summary>
+        /// Growth function of fungi.
+        /// The Growth will stop if Section.fin == False
+        /// </summary>
+        public Point3d Grow()
         {
             if (fin == true)
             {
@@ -52,9 +63,15 @@ namespace ParallelFungi.Data
                 subseq.Add(end);
                 end = subseq[subseq.Count - 1] + this.GrowthData.growth_rate * Unitize(path) + Rand_vec();
             }
+
+            return this.end;
         }
 
-        public void graft(Section branch_new)
+        /// <summary>
+        /// Finish Growth if Section.fin == False
+        /// </summary>
+        /// <param name="branch_new"></param>
+        public void Graft(Section branch_new)
         {
             //if Section is not fully grown, set the section fully grown
             if (fin == false)
@@ -64,11 +81,16 @@ namespace ParallelFungi.Data
             branch_new.path += Rand_vec();     //나중에 지우기 꼭 나중에 수정할 것
             branch.Add(branch_new.Section_hash);
         }
-
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="Substances"></param>
         public void substance_update(List<ISubstance> Substances)
         {
             Vector3d attract_grad = new Vector3d(0, 0, 0);
 
+            ///Travers Substance. Check type of Substance
             foreach (var substance in Substances)
             {
                 Point3d attract_point = new Point3d();
@@ -79,7 +101,7 @@ namespace ParallelFungi.Data
                 }
                 else if (substance is AttractCurve attractCurve) 
                 {
-                    double t = new double();
+                    double t = new double();        //hyperparameter for location on curve
                     ((Curve) attractCurve.Substance).ClosestPoint(end, out t);
                     attract_point = ((Curve)attractCurve.Substance).PointAt(t);
                 }
@@ -96,29 +118,41 @@ namespace ParallelFungi.Data
             path = path.Length * Unitize(path + Unitize(attract_grad));
         }
 
-        public void NeighborSensing(List<Point3d> subpoint)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="subpoint"></param>
+        public void NeighborSensing(RTree subSequence,List<Point3d> subSequenceList)
         {
-            if (distance <= q_th)
+            List<Point3d> SequenceInRadius = new List<Point3d>();
+
+            EventHandler<RTreeEventArgs> searchCallback = (object sender, RTreeEventArgs args) =>
             {
-                Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
-                direction.Unitize();
+                if (this.end.DistanceTo(subSequenceList[args.Id]) <= this.GrowthData.sensing_radius)
+                {
+                    SequenceInRadius.Add(subSequenceList[args.Id]);
+                }
+            };
 
-                double force = at_co * quad_decay(end, attract_point, q_th, at_co); // 여기에 적절한 force 계산식을 사용하세요
-                attract_grad += direction * force;
-            }
-            else
+            // RTree를 이용해 반경 r 내의 점 검색
+            subSequence.Search(new Sphere(this.end, this.GrowthData.sensing_radius), searchCallback);
+
+            Vector3d temp = new Vector3d(0,0,0);
+
+            foreach (var Neighbor in SequenceInRadius)
             {
-                Vector3d direction = Vector3d.Subtract(new Vector3d(attract_point), new Vector3d(end));
-                direction.Unitize();
-
-                double force = Math.Min(at_co, at_co * quad_decay(end, attract_point, q_th, at_co)); // 최대 force 값을 설정
-                attract_grad += direction * force;
+                temp += quad_decay(this.end, Neighbor) * (this.end - Neighbor);
             }
+            path += temp;
+        }
 
+        public void Fusion()
+        {
+            
         }
 
 
-        //misc
+        ///misc
         private Vector3d Unitize(Vector3d Vec)
         {
             return Vec / Vec.Length;
@@ -141,7 +175,7 @@ namespace ParallelFungi.Data
         private double quad_decay(Point3d pt1, Point3d pt2)
         {
             double dis = pt1.DistanceTo(pt2);
-            if (dis <= this.GrowthData.quad_decay_threshold) { dis = this.GrowthData.quad_decay_threshold; }
+            if (dis <= this.GrowthData.fusion_radius) { dis = this.GrowthData.fusion_radius; }
             return this.GrowthData.neighbor_sensing_sensitivity / (dis * dis);
         }
     }

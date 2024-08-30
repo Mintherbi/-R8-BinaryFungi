@@ -26,7 +26,8 @@ namespace ParallelFungi.Behavior
             pManager.AddIntegerParameter("Growth_Rate", "GR", "Growing Length per time", GH_ParamAccess.item, 1);
             pManager.AddNumberParameter("Branch_Rate", "BR", "Growing Length per time", GH_ParamAccess.item,0.1);
             pManager.AddNumberParameter("Neighbor_Sensing_Rate", "NR", "Growing Length per time", GH_ParamAccess.item,3);
-            pManager.AddNumberParameter("Quad Decay Threshold", "QD", "Threshold of compeling between tips", GH_ParamAccess.item,5);
+            pManager.AddNumberParameter("Sensing_Radius", "SR", "Radius of Sensing boundary", GH_ParamAccess.item,5);
+            pManager.AddNumberParameter("Fusion_Radius", "FR", "Radius of Fusion boundary", GH_ParamAccess.item, 1);
         }
 
         /// <summary>
@@ -48,15 +49,17 @@ namespace ParallelFungi.Behavior
             int Growth_Rate = new int();
             double Branch_Rate = new double();
             double neighbor_sensing_sensitivity = new double();
-            double quad_decay_threshold = new double();
+            double sensing_radius = new double();
+            double fusion_radius = new double();
 
             if (!DA.GetData(0, ref Growth_Rate)) { return; }
             if (!DA.GetData(1, ref Branch_Rate)) { return; }
             if (!DA.GetData(2, ref neighbor_sensing_sensitivity)) { return; }
-            if(!DA.GetData(3, ref quad_decay_threshold)) { return; }    
+            if (!DA.GetData(3, ref sensing_radius)) { return; }    
+            if (!DA.GetData(4, ref fusion_radius)) { return; }
             #endregion
 
-            GrowthData Growth = new GrowthData(Growth_Rate, Branch_Rate, neighbor_sensing_sensitivity, quad_decay_threshold);
+            GrowthData Growth = new GrowthData(Growth_Rate, Branch_Rate, neighbor_sensing_sensitivity, sensing_radius, fusion_radius);
 
             DA.SetData(0, Growth);
         }
@@ -64,6 +67,7 @@ namespace ParallelFungi.Behavior
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
+        /*
         protected override System.Drawing.Bitmap Icon
         {
             get
@@ -73,7 +77,7 @@ namespace ParallelFungi.Behavior
                 return null;
             }
         }
-
+        */
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
         /// </summary>

@@ -25,7 +25,7 @@ namespace ParallelFungi.Behavior
         /// </summary>
         protected override void RegisterInputParams(GH_InputParamManager pManager)
         {
-            pManager.AddGenericParameter("Substance", "S", "Location of Substance", GH_ParamAccess.item);
+            pManager.AddGeometryParameter("Substance", "S", "Location of Substance", GH_ParamAccess.item);
             pManager.AddNumberParameter("Force", "F", "Strength of Substance", GH_ParamAccess.item);
             pManager.AddIntegerParameter("Treshold", "T", "Threshold of Distance", GH_ParamAccess.item);
             pManager.AddBooleanParameter("Direction", "D", "True : Attact | False : Repel", GH_ParamAccess.item);
@@ -80,6 +80,7 @@ namespace ParallelFungi.Behavior
         /// <summary>
         /// Provides an Icon for the component.
         /// </summary>
+/*
         protected override System.Drawing.Bitmap Icon
         {
             get
@@ -89,6 +90,7 @@ namespace ParallelFungi.Behavior
                 return null;
             }
         }
+*/
 
         /// <summary>
         /// Gets the unique ID for this component. Do not change this ID after release.
